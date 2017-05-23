@@ -151,10 +151,12 @@ exports.error = error;
 function ShellString(stdout, stderr, code) {
   var that;
   if (stdout instanceof Array) {
+    console.log('Array');
     that = stdout;
     that.stdout = stdout.join('\n');
     if (stdout.length > 0) that.stdout += '\n';
   } else {
+    console.log('stdout: ' + stdout);
     that = new String(stdout);
     that.stdout = stdout;
   }
@@ -165,6 +167,7 @@ function ShellString(stdout, stderr, code) {
   pipeMethods.forEach(function (cmd) {
     that[cmd] = shellMethods[cmd].bind(that);
   });
+  console.log('shellstring: ' + that);
   return that;
 }
 

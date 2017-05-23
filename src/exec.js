@@ -177,7 +177,9 @@ function execSync(cmd, opts, pipe) {
   if (code !== 0) {
     common.error('', code, { continue: true });
   }
+  console.log('stdout: ' + stdout);
   var obj = common.ShellString(stdout, stderr, code);
+  console.log('obj: ' + obj);
   return obj;
 } // execSync()
 
@@ -218,6 +220,7 @@ function execAsync(cmd, opts, pipe, callback) {
     if (!opts.silent) process.stderr.write(data);
   });
 
+  console.log('c: ' + c);
   return c;
 }
 
