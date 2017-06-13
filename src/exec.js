@@ -78,9 +78,11 @@ function execSync(cmd, opts, pipe) {
 
   if (typeof child.execSync === 'function') {
     script = [
+      'try {',
       "var child = require('child_process')",
       "  , fs = require('fs');",
       'var childProcess = child.exec(' + JSON.stringify(cmd) + ', ' + optString + ', function(err) {',
+      '  try {',
       '  var fname = ' + JSON.stringify(codeFile) + ';',
       '  if (!err) {',
       '    fs.writeFileSync(fname, "0");',
@@ -89,7 +91,15 @@ function execSync(cmd, opts, pipe) {
       '  } else {',
       '    fs.writeFileSync(fname, err.code.toString());',
       '  }',
+      '  } catch (e) {',
+      '  console.log("*~*~*~*~*~**~*~*~*~*~*~~*~*~*~*~*~*~*~*~*~*~*~**~*~*");',
+      '  console.log("callback bug: " + e);',
+      '  }',
       '});',
+      '} catch (e2) {',
+      '  console.log("*~*~*~*~*~**~*~*~*~*~*~~*~*~*~*~*~*~*~*~*~*~*~**~*~*");',
+      '  console.log("exec bug: " + e2);',
+      '}',
       'var stdoutStream = fs.createWriteStream(' + JSON.stringify(stdoutFile) + ');',
       'var stderrStream = fs.createWriteStream(' + JSON.stringify(stderrFile) + ');',
       'childProcess.stdout.pipe(stdoutStream, {end: false});',
