@@ -5,14 +5,20 @@ import util from 'util';
 import test from 'ava';
 
 import shell from '..';
+import mocks from './utils/mocks';
 
 const CWD = process.cwd();
 const ORIG_EXEC_PATH = shell.config.execPath;
 shell.config.silent = true;
 
+test.beforeEach(() => {
+  mocks.init();
+});
+
 test.afterEach.always(() => {
   process.chdir(CWD);
   shell.config.execPath = ORIG_EXEC_PATH;
+  mocks.restore();
 });
 
 //

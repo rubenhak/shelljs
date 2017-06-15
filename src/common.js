@@ -437,3 +437,49 @@ function _register(name, implementation, wrapOptions) {
   }
 }
 exports.register = _register;
+
+var _processStdoutWrite = process.stdout.write;
+var _processStderrWrite = process.stderr.write;
+var _stdoutWrite = wrapWrite(_stdout, process.stdout);
+var _stderrWrite = wrapWrite(_stderr, process.stderr);
+var _stdout = [];
+var _stderr = [];
+
+function wrapWrite(target, pipe) {
+  return function write(chunk, encoding) {
+    target.push(chunkToString(chunk, encoding));
+    return pipe.write.apply(pipe, arguments);
+  };
+}
+
+function chunkToString(chunk, encoding) {
+  return Buffer.isBuffer(chunk) ? chunk.toString(encoding) : chunk;
+}
+
+function joinStrings(arr) {
+  return arr.reduce(function (acc, cur) {
+    return acc + cur;
+  }, '');
+}
+
+// Intercepts data written to stdout/stderr
+function interceptStdio() {
+  process.stdout.write = _stdoutWrite;
+  process.stderr.write = _stderrWrite;
+  return {
+    stdout: function () {
+      return joinStrings(_stdout);
+    },
+    stderr: function () {
+      return joinStrings(_stderr);
+    },
+    restore: function () {
+      // restores original write methods
+      process.stdout.write = _processStdoutWrite;
+      process.stderr.write = _processStderrWrite;
+      _stdout.splice(0);
+      _stderr.splice(0);
+    },
+  };
+}
+exports.interceptStdio = interceptStdio;
