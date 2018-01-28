@@ -4,6 +4,7 @@ var _pwd = require('./pwd');
 var path = require('path');
 var fs = require('fs');
 var child = require('child_process');
+var _ = require('lodash');
 
 var DEFAULT_MAXBUFFER_SIZE = 20 * 1024 * 1024;
 
@@ -28,7 +29,6 @@ function execSync(cmd, opts, pipe) {
   opts = common.extend({
     silent: common.config.silent,
     cwd: _pwd().toString(),
-    env: process.env,
     maxBuffer: DEFAULT_MAXBUFFER_SIZE,
     encoding: 'utf8',
   }, opts);
@@ -104,7 +104,6 @@ function execAsync(cmd, opts, pipe, callback) {
   opts = common.extend({
     silent: common.config.silent,
     cwd: _pwd().toString(),
-    env: process.env,
     maxBuffer: DEFAULT_MAXBUFFER_SIZE,
     encoding: 'utf8',
   }, opts);
@@ -195,6 +194,21 @@ function _exec(command, options, callback) {
     silent: common.config.silent,
     async: false,
   }, options);
+
+  if (options.envOverride) {
+      options.env = _.clone(process.env);
+      for(var key of _.keys(options.envOverride)) {
+          var value = options.envOverride[key];
+          if (value != null) {
+              options.env[key] = value;
+          } else {
+              delete options.env[key];
+          }
+      }
+      delete options.envOverride;
+  } else {
+      options.env = process.env;
+  }
 
   try {
     if (options.async) {

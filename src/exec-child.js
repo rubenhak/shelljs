@@ -24,6 +24,7 @@ var c = childProcess.exec(cmd, execOptions, function (err) {
   } else {
     process.exitCode = err.code;
   }
+  process.exit();
 });
 
 var stdoutStream = fs.createWriteStream(stdoutFile);
